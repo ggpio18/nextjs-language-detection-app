@@ -1,104 +1,74 @@
 "use client";
-
-import React, { useRef, useState, useEffect } from "react";
-import * as tf from "@tensorflow/tfjs";
-import * as handpose from "@tensorflow-models/handpose";
+import { useRef, useEffect, useState } from "react";
 import Webcam from "react-webcam";
+import * as handpose from "@tensorflow-models/handpose";
 import * as fp from "fingerpose";
-import { drawHand } from "../utils/drawHand";
 import { aslGestures } from "../utils/aslGestures";
+import "@tensorflow/tfjs-backend-webgl";
 
-const WebcamFeed = () => {
+export default function WebcamFeed() {
   const webcamRef = useRef(null);
-  const canvasRef = useRef(null);
   const [gesture, setGesture] = useState("Waiting...");
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const runHandpose = async () => {
-      await tf.setBackend("webgl");
-      const net = await handpose.load();
-      console.log("Handpose model loaded.");
+    async function loadModel() {
+      try {
+        console.log("Loading Handpose model...");
+        const net = await handpose.load();
+        console.log("Model loaded successfully!");
 
-      setInterval(() => {
-        detect(net);
-      }, 100);
-    };
-
-    runHandpose();
+        setInterval(() => detectHand(net), 200);
+      } catch (err) {
+        console.error("Error loading model:", err);
+        setError("Failed to load hand recognition model.");
+      }
+    }
+    loadModel();
   }, []);
 
-  const detect = async (net) => {
-    if (
-      webcamRef.current &&
-      webcamRef.current.video &&
-      webcamRef.current.video.readyState === 4
-    ) {
-      const video = webcamRef.current.video;
-      const hands = await net.estimateHands(video);
+  const detectHand = async (net) => {
+    if (webcamRef.current && webcamRef.current.video.readyState === 4) {
+      try {
+        const video = webcamRef.current.video;
+        const hand = await net.estimateHands(video);
 
-      if (hands.length > 0) {
-        const hand = hands[0];
-        if (hand.landmarks) {
-          try {
-            const aslGestureArray = Object.values(aslGestures).filter(Boolean);
-            const GE = new fp.GestureEstimator(aslGestureArray);
+        if (hand.length > 0) {
+          const GE = new fp.GestureEstimator(Object.values(aslGestures));
+          const estimatedGestures = GE.estimate(hand[0].landmarks, 8.5);
 
-            if (aslGestureArray.length === 0) {
-              console.warn("No gestures available for recognition.");
-              return;
-            }
-
-            const estimatedGestures = GE.estimate(hand.landmarks, 7.5);
-            console.log("Detected Gestures:", estimatedGestures.gestures);
-
-            if (estimatedGestures.gestures.length > 0) {
-              const maxConfidenceGesture = estimatedGestures.gestures.reduce(
-                (prev, current) =>
-                  prev.confidence > current.confidence ? prev : current
-              );
-              setGesture(maxConfidenceGesture.name);
-            } else {
-              setGesture("No gesture detected");
-            }
-          } catch (error) {
-            console.error("Error estimating gesture:", error);
+          if (estimatedGestures.gestures.length > 0) {
+            const detectedGesture = estimatedGestures.gestures.reduce(
+              (prev, current) => (prev.confidence > current.confidence ? prev : current)
+            );
+            setGesture(detectedGesture.name);
+          } else {
+            setGesture("Hand detected, but no gesture recognized.");
           }
+        } else {
+          setGesture("No Hand Detected");
         }
-      }
-
-      if (canvasRef.current) {
-        const ctx = canvasRef.current.getContext("2d");
-        if (ctx) drawHand(hands, ctx);
+      } catch (err) {
+        console.error("Error detecting hand:", err);
+        setError("Error processing hand gesture.");
       }
     }
   };
 
   return (
-    <div className="relative flex flex-col items-center justify-center">
-      <Webcam
-        ref={webcamRef}
-        style={{
-          width: 640,
-          height: 480,
-          borderRadius: "10px",
-          border: "3px solid #fff",
-        }}
-      />
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: 640,
-          height: 480,
-        }}
-      />
-      <p className="mt-4 text-2xl font-semibold text-yellow-300">
-        ASL Gesture: {gesture ? gesture : "No gesture detected, try again!"}
-      </p>
+    <div className="flex flex-col items-center p-6 bg-gray-900 text-white rounded-lg">
+      <h1 className="text-2xl font-bold mb-4">Live ASL Recognition</h1>
+
+      <div className="border-4 border-green-500 rounded-lg overflow-hidden">
+        <Webcam
+          ref={webcamRef}
+          className="w-[640px] h-[480px] bg-black"
+          style={{ borderRadius: "10px" }}
+        />
+      </div>
+
+      <h2 className="text-xl mt-4 text-green-400">{gesture}</h2>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   );
-};
-
-export default WebcamFeed;
+}

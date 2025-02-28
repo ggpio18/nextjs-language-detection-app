@@ -1,29 +1,30 @@
 import * as fp from "fingerpose";
 
-const aslGestures = {};
-
-// ASL "A" Gesture (Fist)
-aslGestures.a = new fp.GestureDescription("A");
-aslGestures.a.addCurl(fp.Finger.Thumb, fp.FingerCurl.FullCurl);
-aslGestures.a.addCurl(fp.Finger.Index, fp.FingerCurl.FullCurl);
-aslGestures.a.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl);
-aslGestures.a.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl);
-aslGestures.a.addCurl(fp.Finger.Pinky, fp.FingerCurl.FullCurl);
-
-// ASL "B" Gesture (Flat Hand)
-aslGestures.b = new fp.GestureDescription("B");
-aslGestures.b.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl);
-aslGestures.b.addCurl(fp.Finger.Index, fp.FingerCurl.NoCurl);
-aslGestures.b.addCurl(fp.Finger.Middle, fp.FingerCurl.NoCurl);
-aslGestures.b.addCurl(fp.Finger.Ring, fp.FingerCurl.NoCurl);
-aslGestures.b.addCurl(fp.Finger.Pinky, fp.FingerCurl.NoCurl);
-
-// ASL "Hello" Gesture (Open Palm)
-aslGestures.hello = new fp.GestureDescription("Hello");
-aslGestures.hello.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl);
-aslGestures.hello.addCurl(fp.Finger.Index, fp.FingerCurl.NoCurl);
-aslGestures.hello.addCurl(fp.Finger.Middle, fp.FingerCurl.NoCurl);
-aslGestures.hello.addCurl(fp.Finger.Ring, fp.FingerCurl.NoCurl);
-aslGestures.hello.addCurl(fp.Finger.Pinky, fp.FingerCurl.NoCurl);
-
-export { aslGestures };
+export const aslGestures = {
+  A: new fp.GestureDescription("A"),
+  B: new fp.GestureDescription("B"),
+  C: new fp.GestureDescription("C"),
+  D: new fp.GestureDescription("D"),
+  E: new fp.GestureDescription("E"),
+  F: new fp.GestureDescription("F"),
+  G: new fp.GestureDescription("G"),
+  H: new fp.GestureDescription("H"),
+  I: new fp.GestureDescription("I"),
+  J: new fp.GestureDescription("J"),
+  K: new fp.GestureDescription("K"),
+  L: new fp.GestureDescription("L"),
+  M: new fp.GestureDescription("M"),
+  N: new fp.GestureDescription("N"),
+  O: new fp.GestureDescription("O"),
+  P: new fp.GestureDescription("P"),
+  Q: new fp.GestureDescription("Q"),
+  R: new fp.GestureDescription("R"),
+  S: new fp.GestureDescription("S"),
+  T: new fp.GestureDescription("T"),
+  U: new fp.GestureDescription("U"),
+  V: new fp.GestureDescription("V"),
+  W: new fp.GestureDescription("W"),
+  X: new fp.GestureDescription("X"),
+  Y: new fp.GestureDescription("Y"),
+  Z: new fp.GestureDescription("Z"),
+};
